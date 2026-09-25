@@ -1,0 +1,10 @@
+bin/
+obj/
+build/
+verify/
+Release/
+*.exe
+*.zip
+*.user
+.vs/
+TestResults/

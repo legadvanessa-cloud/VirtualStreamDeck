@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0f1115">
+<title>Virtual Stream Deck</title>
+<style>
+  :root { --bg:#0f1115; --panel:#171a20; --line:#262a33; --text:#e8eaed; --dim:#8b919c; --accent:#3b82f6; --bad:#ef4444; }
+  * { box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  html, body { margin:0; height:100%; background:var(--bg); color:var(--text);
+    font:14px/1.3 "Segoe UI", system-ui, -apple-system, Roboto, sans-serif; overflow:hidden; user-select:none; }
+  header { height:52px; display:flex; align-items:center; gap:12px; padding:0 16px; border-bottom:1px solid var(--line); }
+  header .brand { font-weight:700; letter-spacing:.14em; font-size:12px; color:var(--dim); }
+  header select { margin-left:auto; background:var(--panel); color:var(--text); border:1px solid var(--line);
+    border-radius:10px; padding:8px 12px; font:inherit; min-height:40px; }
+  #dot { width:9px; height:9px; border-radius:50%; background:#22c55e; }
+  #dot.off { background:var(--bad); }
+  main { position:absolute; top:52px; bottom:44px; left:0; right:0; padding:12px; }
+  #grid { width:100%; height:100%; display:grid; gap:10px; }
+  .btn { position:relative; border:0; padding:0; background:var(--panel); border-radius:14px; overflow:hidden;
+    cursor:pointer; transition:transform .08s ease; touch-action:manipulation; }
+  .btn img { width:100%; height:100%; object-fit:contain; display:block; pointer-events:none; }
+  .btn:active, .btn.down { transform:scale(.95); }
+  .btn.flash-ok::after, .btn.flash-err::after { content:""; position:absolute; inset:0; border-radius:14px; animation:fl .45s ease-out forwards; }
+  .btn.flash-ok::after { background:rgba(59,130,246,.35); }
+  .btn.flash-err::after { background:rgba(239,68,68,.45); }
+  @keyframes fl { from { opacity:1 } to { opacity:0 } }
+  .empty { border-radius:14px; border:1px dashed #1f232b; }
+  footer { position:absolute; bottom:0; left:0; right:0; height:44px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .pg { width:34px; height:34px; border-radius:50%; border:1px solid var(--line); background:var(--panel); color:var(--dim); font:inherit; }
+  .pg.on { background:var(--accent); color:#fff; border-color:var(--accent); }
+  #toast { position:fixed; left:50%; bottom:56px; transform:translateX(-50%); background:#1f232b; border:1px solid var(--line);
+    padding:10px 16px; border-radius:10px; opacity:0; transition:opacity .2s; pointer-events:none; max-width:90vw; }
+  #toast.show { opacity:1; }
+  #pin { position:fixed; inset:0; background:var(--bg); display:none; align-items:center; justify-content:center; flex-direction:column; gap:16px; }
+  #pin input { font-size:28px; letter-spacing:.4em; text-align:center; width:260px; padding:12px; border-radius:12px;
+    border:1px solid var(--line); background:var(--panel); color:var(--text); }
+  #pin button { font:inherit; font-size:16px; padding:12px 28px; border-radius:12px; border:0; background:var(--accent); color:#fff; min-height:48px; }
+  #pin p { color:var(--dim); max-width:320px; text-align:center; margin:0; }
+</style>
+</head>
+<body>
+<header><span id="dot"></span><span class="brand">VIRTUAL STREAM DECK</span><select id="profiles" aria-label="Profile"></select></header>
+<main><div id="grid"></div></main>
+<footer id="pages"></footer>
+<div id="toast"></div>
+<div id="pin">
+  <div class="brand" style="letter-spacing:.14em;color:#8b919c;font-weight:700">VIRTUAL STREAM DECK</div>
+  <p>Enter the 6-digit PIN shown in the desktop app under Settings &rsaquo; Tablet remote.</p>
+  <input id="pinInput" inputmode="numeric" maxlength="6" autocomplete="off">
+  <button id="pinGo">Connect</button>
+</div>
+<script>
+(function () {
+  var pin = ""; try { pin = localStorage.getItem("vsd-pin") || ""; } catch (e) {}
+  var layout = null, busy = false, timer = null;
+  function $(id) { return document.getElementById(id); }
+  function toast(t) { var el = $("toast"); el.textContent = t; el.classList.add("show"); clearTimeout(el._t); el._t = setTimeout(function () { el.classList.remove("show"); }, 2200); }
+  function api(method, path) {
+    return fetch(path, { method: method, headers: { "X-Pin": pin }, cache: "no-store" }).then(function (r) {
+      if (r.status === 401) { showPin(); throw new Error("pin"); }
+      $("dot").classList.remove("off");
+      return r.json();
+    }, function (e) { $("dot").classList.add("off"); throw e; });
+  }
+  function showPin() { $("pin").style.display = "flex"; clearInterval(timer); timer = null; }
+  function hidePin() { $("pin").style.display = "none"; }
+  $("pinGo").onclick = function () {
+    pin = $("pinInput").value.trim(); try { localStorage.setItem("vsd-pin", pin); } catch (e) {}
+    hidePin(); load(); start();
+  };
+  $("profiles").onchange = function () { api("POST", "/api/profile/" + encodeURIComponent(this.value)).then(load); };
+  function render(l) {
+    var g = $("grid");
+    var sig = l.profileId + "|" + l.page + "|" + l.cols + "x" + l.rows + "|" + l.buttons.map(function (b) { return b.id + b.row + b.col + b.rs + b.cs + b.v; }).join(",");
+    if (g._sig === sig) return;
+    g._sig = sig;
+    g.style.gridTemplateColumns = "repeat(" + l.cols + ", 1fr)";
+    g.style.gridTemplateRows = "repeat(" + l.rows + ", 1fr)";
+    g.innerHTML = "";
+    var used = {};
+    l.buttons.forEach(function (b) {
+      var el = document.createElement("button");
+      el.className = "btn";
+      el.style.gridColumn = (b.col + 1) + " / span " + b.cs;
+      el.style.gridRow = (b.row + 1) + " / span " + b.rs;
+      el.setAttribute("aria-label", b.title + " " + b.subtitle);
+      var img = document.createElement("img");
+      img.alt = "";
+      // icons need the PIN header, so load them through fetch (cached by version)
+      fetch("/api/icon/" + b.id + ".png?v=" + b.v, { headers: { "X-Pin": pin } }).then(function (r) { return r.blob(); })
+        .then(function (bl) { img.src = URL.createObjectURL(bl); }).catch(function () {});
+      el.appendChild(img);
+      el.addEventListener("click", function () { press(b, el); });
+      g.appendChild(el);
+      for (var r = b.row; r < b.row + b.rs; r++) for (var c = b.col; c < b.col + b.cs; c++) used[r + "," + c] = 1;
+    });
+    for (var r = 0; r < l.rows; r++) for (var c = 0; c < l.cols; c++) if (!used[r + "," + c]) {
+      var e = document.createElement("div"); e.className = "empty"; e.style.gridColumn = c + 1; e.style.gridRow = r + 1; g.appendChild(e);
+    }
+    var p = $("pages"); p.innerHTML = "";
+    if (l.pageCount > 1) for (var i = 0; i < l.pageCount; i++) (function (i) {
+      var d = document.createElement("button"); d.className = "pg" + (i === l.page ? " on" : ""); d.textContent = i + 1;
+      d.onclick = function () { api("POST", "/api/page/" + i).then(load); }; p.appendChild(d);
+    })(i);
+    var sel = $("profiles"); sel.innerHTML = "";
+    l.profiles.forEach(function (pr) { var o = document.createElement("option"); o.value = pr.id; o.textContent = pr.name; if (pr.id === l.profileId) o.selected = true; sel.appendChild(o); });
+  }
+  function press(b, el) {
+    if (b.confirm && !confirm(b.confirmText || ("Run \"" + b.title + "\"?"))) return;
+    api("POST", "/api/press/" + b.id).then(function (r) {
+      el.classList.remove("flash-ok", "flash-err"); void el.offsetWidth;
+      el.classList.add(r.ok ? "flash-ok" : "flash-err");
+      if (r.message) toast(r.message);
+      setTimeout(load, 250);
+    }).catch(function () {});
+  }
+  function load() { if (busy) return; busy = true; api("GET", "/api/layout").then(function (l) { layout = l; render(l); }).catch(function () {}).then(function () { busy = false; }); }
+  function start() { if (!timer) timer = setInterval(function () { if (!document.hidden) load(); }, 2000); }
+  if (!pin) showPin(); else { load(); start(); }
+})();
+</script>
+</body>
+</html>
