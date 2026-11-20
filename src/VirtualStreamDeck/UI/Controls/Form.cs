@@ -4,6 +4,7 @@ using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 using VirtualStreamDeck.Core;
+using VirtualStreamDeck.UI;
 using VirtualStreamDeck.UI.Windows;
 
 namespace VirtualStreamDeck.UI.Controls;
@@ -11,11 +12,11 @@ namespace VirtualStreamDeck.UI.Controls;
 /// <summary>Code-built form controls with consistent spacing, used by the editor, settings and wizard.</summary>
 public static class F
 {
-    public static TextBlock Caps(string text, double top = 18) => Styled(new TextBlock { Text = text.ToUpperInvariant(), Margin = new Thickness(0, top, 0, 8) }, "Text.Caps");
+    public static TextBlock Caps(string text, double top = 18) => Styled(new TextBlock { Text = French.T(text).ToUpperInvariant(), Margin = new Thickness(0, top, 0, 8) }, "Text.Caps");
 
-    public static TextBlock Heading(string text, double size = 20) => Styled(new TextBlock { Text = text, FontSize = size, TextWrapping = TextWrapping.Wrap }, "Text.Heading");
+    public static TextBlock Heading(string text, double size = 20) => Styled(new TextBlock { Text = French.T(text), FontSize = size, TextWrapping = TextWrapping.Wrap }, "Text.Heading");
 
-    public static TextBlock Hint(string text, double top = 4) => Styled(new TextBlock { Text = text, Margin = new Thickness(0, top, 0, 0) }, "Text.Hint");
+    public static TextBlock Hint(string text, double top = 4) => Styled(new TextBlock { Text = French.T(text), Margin = new Thickness(0, top, 0, 0) }, "Text.Hint");
 
     private static T Styled<T>(T el, string style) where T : FrameworkElement
     {
@@ -26,7 +27,7 @@ public static class F
     public static FrameworkElement Field(string label, UIElement control, string? hint = null)
     {
         var sp = new StackPanel { Margin = new Thickness(0, 0, 0, 14) };
-        var lb = new TextBlock { Text = label, FontSize = 12.5, Margin = new Thickness(0, 0, 0, 6) };
+        var lb = new TextBlock { Text = French.T(label), FontSize = 12.5, Margin = new Thickness(0, 0, 0, 6) };
         lb.SetResourceReference(TextBlock.ForegroundProperty, "Text.Secondary");
         sp.Children.Add(lb);
         sp.Children.Add(control);
@@ -54,7 +55,7 @@ public static class F
     {
         var cb = new ComboBox { MaxDropDownHeight = 420 };
         var list = items.ToList();
-        foreach (var (id, label) in list) cb.Items.Add(new ComboBoxItem { Content = label, Tag = id });
+        foreach (var (id, label) in list) cb.Items.Add(new ComboBoxItem { Content = French.T(label), Tag = id });
         var idx = list.FindIndex(x => x.Id == selected);
         cb.SelectedIndex = idx >= 0 ? idx : (list.Count > 0 ? 0 : -1);
         cb.SelectionChanged += (_, _) =>
@@ -66,7 +67,7 @@ public static class F
 
     public static CheckBox Toggle(string label, bool value, Action<bool> set)
     {
-        var c = new CheckBox { Content = label, IsChecked = value, Margin = new Thickness(0, 4, 0, 10) };
+        var c = new CheckBox { Content = French.T(label), IsChecked = value, Margin = new Thickness(0, 4, 0, 10) };
         c.Checked += (_, _) => set(true);
         c.Unchecked += (_, _) => set(false);
         return c;
@@ -117,7 +118,7 @@ public static class F
 
     public static Button Button(string label, Action click, string style = "", string? tip = null)
     {
-        var b = new Button { Content = label, ToolTip = tip };
+        var b = new Button { Content = French.T(label), ToolTip = tip == null ? null : French.T(tip) };
         if (style.Length > 0) b.SetResourceReference(FrameworkElement.StyleProperty, style);
         b.Click += (_, _) => click();
         return b;
@@ -125,9 +126,10 @@ public static class F
 
     public static Button IconButton(string glyph, string tip, Action click)
     {
-        var b = new Button { Content = glyph, ToolTip = tip };
+        var translatedTip = French.T(tip);
+        var b = new Button { Content = glyph, ToolTip = translatedTip };
         b.SetResourceReference(FrameworkElement.StyleProperty, "Btn.Icon");
-        System.Windows.Automation.AutomationProperties.SetName(b, tip);
+        System.Windows.Automation.AutomationProperties.SetName(b, translatedTip);
         b.Click += (_, _) => click();
         return b;
     }
@@ -168,7 +170,7 @@ public static class F
     {
         var sp = new StackPanel();
         var wrap = new WrapPanel();
-        var hex = new TextBox { Text = value ?? "", Width = 110, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0), ToolTip = "Hex colour, e.g. #3B82F6" };
+        var hex = new TextBox { Text = value ?? "", Width = 110, HorizontalAlignment = HorizontalAlignment.Left, Margin = new Thickness(0, 6, 0, 0), ToolTip = French.T("Hex colour, e.g. #3B82F6") };
         var updating = false;
         void Choose(string? v)
         {
@@ -184,8 +186,8 @@ public static class F
             {
                 Width = 26, Height = 26, CornerRadius = new CornerRadius(6), Margin = new Thickness(0, 0, 6, 6), BorderThickness = new Thickness(2),
                 BorderBrush = ThemeManager.Brush(value == null ? ThemeManager.Current.Text : Colors.Transparent),
-                Background = ThemeManager.Brush(ThemeManager.Current.Raised), Cursor = Cursors.Hand, ToolTip = "Theme default", Tag = null,
-                Child = new TextBlock { Text = "", FontFamily = IconVisual.Glyphs, FontSize = 9, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Foreground = ThemeManager.Brush(ThemeManager.Current.TextMuted) },
+                Background = ThemeManager.Brush(ThemeManager.Current.Raised), Cursor = Cursors.Hand, ToolTip = French.T("Theme default"), Tag = null,
+                Child = new TextBlock { Text = "", FontFamily = IconVisual.Glyphs, FontSize = 9, HorizontalAlignment = HorizontalAlignment.Center, VerticalAlignment = VerticalAlignment.Center, Foreground = ThemeManager.Brush(ThemeManager.Current.Text) },
             };
             themeChip.MouseLeftButtonUp += (_, _) => Choose(null);
             wrap.Children.Add(themeChip);
@@ -243,16 +245,16 @@ public sealed class ChordBox : Grid
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
         _box.Text = Display();
-        _box.ToolTip = "Click, then press the key combination. Backspace clears.";
+        _box.ToolTip = French.T("Click, then press the key combination. Backspace clears.");
         _box.PreviewKeyDown += OnKey;
-        _box.GotKeyboardFocus += (_, _) => { _box.Text = "Press keys…"; Recording?.Invoke(true); };
+        _box.GotKeyboardFocus += (_, _) => { _box.Text = French.T("Press keys…"); Recording?.Invoke(true); };
         _box.LostKeyboardFocus += (_, _) => { _box.Text = Display(); Recording?.Invoke(false); };
         Children.Add(_box);
         var type = F.IconButton("", "Type it instead (for keys like F13–F24)", () =>
         {
-            var r = DialogWindow.Prompt(Window.GetWindow(this), "Key combination", "Type a combination such as CTRL + SHIFT + M or F13.", _value);
+            var r = DialogWindow.Prompt(Window.GetWindow(this), French.T("Key combination"), French.T("Type a combination such as CTRL + SHIFT + M or F13."), _value);
             if (r == null) return;
-            if (r.Length > 0 && !KeyChord.TryParse(r, out _)) { DialogWindow.Info(Window.GetWindow(this), "Not a valid key combination", $"'{r}' could not be understood."); return; }
+            if (r.Length > 0 && !KeyChord.TryParse(r, out _)) { DialogWindow.Info(Window.GetWindow(this), French.T("Not a valid key combination"), $"'{r}' {French.T("could not be understood.")}"); return; }
             Commit(KeyChord.Normalize(r));
         });
         Grid.SetColumn(type, 1);
@@ -262,7 +264,7 @@ public sealed class ChordBox : Grid
         Children.Add(clear);
     }
 
-    private string Display() => _value.Length == 0 ? "None" : _value;
+    private string Display() => _value.Length == 0 ? French.T("None") : _value;
 
     private void Commit(string v)
     {
@@ -285,8 +287,8 @@ public sealed class ChordBox : Grid
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Alt)) mods |= ChordModifiers.Alt;
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) mods |= ChordModifiers.Shift;
         if (Keyboard.Modifiers.HasFlag(ModifierKeys.Windows)) mods |= ChordModifiers.Win;
-        if (mods == ChordModifiers.None && !_allowBare && !(vk is >= 0x7C and <= 0x87)) { _box.Text = "Add CTRL, ALT, SHIFT or WIN"; return; }
-        if (KeyChord.NameOf(vk) == null) { _box.Text = "That key is not supported"; return; }
+        if (mods == ChordModifiers.None && !_allowBare && !(vk is >= 0x7C and <= 0x87)) { _box.Text = French.T("Add CTRL, ALT, SHIFT or WIN"); return; }
+        if (KeyChord.NameOf(vk) == null) { _box.Text = French.T("That key is not supported"); return; }
         Commit(new KeyChord(mods, vk).ToString());
     }
 
