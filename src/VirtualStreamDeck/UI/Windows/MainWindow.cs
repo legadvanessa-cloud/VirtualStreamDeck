@@ -18,12 +18,12 @@ public sealed class MainWindow : ChromeWindow
     private readonly StackPanel _pages = new() { Orientation = Orientation.Horizontal, VerticalAlignment = VerticalAlignment.Center };
     private readonly TextBlock _profileTitle = new() { FontSize = 18, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center, FontFamily = IconVisual.Display };
     private readonly TextBlock _editHint = new() { FontSize = 12, VerticalAlignment = VerticalAlignment.Center, Margin = new Thickness(14, 0, 0, 0) };
-    private readonly ComboBox _gridSize = new() { Width = 110, Margin = new Thickness(10, 0, 0, 0), ToolTip = "Grid size of this profile" };
-    private readonly ToggleButton _editToggle = new() { Content = "EDIT", Margin = new Thickness(6, 0, 0, 0), ToolTip = "Edit mode (Ctrl+E)" };
+    private readonly ComboBox _gridSize = new() { Width = 110, Margin = new Thickness(10, 0, 0, 0), ToolTip = "Taille de la grille de ce profil" };
+    private readonly ToggleButton _editToggle = new() { Content = "MODIFIER", Margin = new Thickness(6, 0, 0, 0), ToolTip = "Mode modification (Ctrl+E)" };
     private readonly Border _side = new() { Width = 372, BorderThickness = new Thickness(1, 0, 0, 0) };
     private readonly ContentControl _sideContent = new();
-    private readonly ToggleButton _tabBroadcast = new() { Content = "BROADCAST", Margin = new Thickness(0, 0, 6, 0) };
-    private readonly ToggleButton _tabSounds = new() { Content = "SOUNDS" };
+    private readonly ToggleButton _tabBroadcast = new() { Content = "DIFFUSION", Margin = new Thickness(0, 0, 6, 0) };
+    private readonly ToggleButton _tabSounds = new() { Content = "SONS" };
     private readonly StackPanel _sideTabs = new() { Orientation = Orientation.Horizontal, Margin = new Thickness(16, 12, 16, 6) };
     private readonly ButtonEditor _editor;
     private readonly BroadcastPanel _broadcast;
@@ -57,10 +57,10 @@ public sealed class MainWindow : ChromeWindow
         {
             ExtraCommands = () => new[]
             {
-                new PaletteItem("Open control surface", "Window", "E7F4", () => { AppShell.ToggleSurface(); return Task.CompletedTask; }),
-                new PaletteItem("Settings", "Window", "E713", () => { AppShell.OpenSettings(this); return Task.CompletedTask; }),
-                new PaletteItem("Diagnostics", "Settings › Advanced", "E9D9", () => { AppShell.OpenSettings(this, "Advanced"); return Task.CompletedTask; }),
-                new PaletteItem(_deck.EditMode ? "Leave edit mode" : "Enter edit mode", "Deck", "E70F", () => { SetEdit(!_deck.EditMode); return Task.CompletedTask; }),
+                new PaletteItem("Ouvrir la surface de contrôle", "Fenêtre", "E7F4", () => { AppShell.ToggleSurface(); return Task.CompletedTask; }),
+                new PaletteItem("Paramètres", "Fenêtre", "E713", () => { AppShell.OpenSettings(this); return Task.CompletedTask; }),
+                new PaletteItem("Diagnostics", "Paramètres › Avancé", "E9D9", () => { AppShell.OpenSettings(this, "Avancé"); return Task.CompletedTask; }),
+                new PaletteItem(_deck.EditMode ? "Quitter le mode modification" : "Activer le mode modification", "Console", "E70F", () => { SetEdit(!_deck.EditMode); return Task.CompletedTask; }),
             },
         };
 
@@ -103,7 +103,7 @@ public sealed class MainWindow : ChromeWindow
         conn.SetResourceReference(Border.BorderBrushProperty, "Border.Subtle");
         conn.Child = new StackPanel { Orientation = Orientation.Horizontal, Children = { _connDot, _conn } };
         sp.Children.Add(conn);
-        var search = F.Button("   Search   Ctrl+K", () => _palette.Show(), "Btn.Ghost", "Search commands and buttons (Ctrl+K)");
+        var search = F.Button("   Search   Ctrl+K", () => _palette.Show(), "Btn.Ghost", "Rechercher des commandes et des boutons (Ctrl+K)");
         search.FontSize = 12;
         search.Content = new TextBlock { Inlines = { new System.Windows.Documents.Run("") { FontFamily = IconVisual.Glyphs }, new System.Windows.Documents.Run("   Search   Ctrl+K") } };
         sp.Children.Add(search);
@@ -111,15 +111,15 @@ public sealed class MainWindow : ChromeWindow
         _editToggle.Click += (_, _) => SetEdit(_editToggle.IsChecked == true);
         sp.Children.Add(_editToggle);
 
-        var surf = F.Button("", () => AppShell.ToggleSurface(), tip: "Open the full-screen control surface (Ctrl+Alt+S)");
+        var surf = F.Button("", () => AppShell.ToggleSurface(), tip: "Ouvrir la surface de contrôle en plein écran (Ctrl+Alt+S)");
         surf.Content = new TextBlock { Inlines = { new System.Windows.Documents.Run("  ") { FontFamily = IconVisual.Glyphs }, new System.Windows.Documents.Run("SURFACE") } };
         surf.Margin = new Thickness(8, 0, 0, 0);
         surf.FontSize = 12;
         sp.Children.Add(surf);
-        var pick = F.IconButton("", "Open on display…", () => DisplayMenu(sp));
+        var pick = F.IconButton("", "Ouvrir sur l’écran…", () => DisplayMenu(sp));
         pick.Width = 30;
         sp.Children.Add(pick);
-        var settings = F.IconButton("", "Settings (Ctrl+,)", () => AppShell.OpenSettings(this));
+        var settings = F.IconButton("", "Paramètres (Ctrl+,)", () => AppShell.OpenSettings(this));
         settings.Margin = new Thickness(6, 0, 0, 0);
         sp.Children.Add(settings);
         return sp;
@@ -130,13 +130,13 @@ public sealed class MainWindow : ChromeWindow
         var m = new ContextMenu();
         foreach (var d in Displays.All())
         {
-            var mi = new MenuItem { Header = "Open on " + d.Label, IsCheckable = true, IsChecked = d.DeviceName == _deck.Config.Settings.SurfaceDisplay };
+            var mi = new MenuItem { Header = "Ouvrir sur " + d.Label, IsCheckable = true, IsChecked = d.DeviceName == _deck.Config.Settings.SurfaceDisplay };
             var disp = d;
             mi.Click += (_, _) => AppShell.OpenSurfaceOn(disp);
             m.Items.Add(mi);
         }
         m.Items.Add(new Separator());
-        var rem = new MenuItem { Header = "Remember display", IsCheckable = true, IsChecked = _deck.Config.Settings.RememberDisplay };
+        var rem = new MenuItem { Header = "Mémoriser l’écran", IsCheckable = true, IsChecked = _deck.Config.Settings.RememberDisplay };
         rem.Click += (_, _) => { _deck.Config.Settings.RememberDisplay = rem.IsChecked; _deck.SaveSoon(); };
         m.Items.Add(rem);
         m.PlacementTarget = anchor;
@@ -160,15 +160,15 @@ public sealed class MainWindow : ChromeWindow
         var sideBorder = new Border { Child = side, BorderThickness = new Thickness(0, 0, 1, 0) };
         sideBorder.SetResourceReference(Border.BackgroundProperty, "Bg.Panel");
         sideBorder.SetResourceReference(Border.BorderBrushProperty, "Border.Subtle");
-        var ph = F.Caps("Profiles", 16);
+        var ph = F.Caps("Profils", 16);
         ph.Margin = new Thickness(18, 16, 0, 8);
         DockPanel.SetDock(ph, Dock.Top);
         side.Children.Add(ph);
         var addRow = new StackPanel { Margin = new Thickness(12, 8, 12, 14) };
-        var add = F.Button("+  New profile", () => NewProfileMenu(addRow), "Btn.Ghost");
+        var add = F.Button("+  Nouveau profil", () => NewProfileMenu(addRow), "Btn.Ghost");
         add.HorizontalContentAlignment = HorizontalAlignment.Left;
         addRow.Children.Add(add);
-        var imp = F.Button("Import profile…", ImportProfile, "Btn.Ghost");
+        var imp = F.Button("Importer un profil…", ImportProfile, "Btn.Ghost");
         imp.HorizontalContentAlignment = HorizontalAlignment.Left;
         imp.FontSize = 12;
         addRow.Children.Add(imp);
@@ -219,7 +219,7 @@ public sealed class MainWindow : ChromeWindow
         _tabSounds.Click += (_, _) => ShowSide("sounds");
         _sideTabs.Children.Add(_tabBroadcast);
         _sideTabs.Children.Add(_tabSounds);
-        var collapse = F.IconButton("", "Hide panel", () => _side.Visibility = Visibility.Collapsed);
+        var collapse = F.IconButton("", "Masquer le panneau", () => _side.Visibility = Visibility.Collapsed);
         collapse.Width = collapse.Height = 32;
         collapse.Margin = new Thickness(10, 0, 0, 0);
         _sideTabs.Children.Add(collapse);
@@ -239,7 +239,7 @@ public sealed class MainWindow : ChromeWindow
         status.SetResourceReference(Border.BackgroundProperty, "Bg.Panel");
         status.SetResourceReference(Border.BorderBrushProperty, "Border.Subtle");
         var sdp = new DockPanel();
-        var showPanel = F.Button("PANEL", () => { _side.Visibility = Visibility.Visible; }, "Btn.Ghost", "Show the side panel");
+        var showPanel = F.Button("PANNEAU", () => { _side.Visibility = Visibility.Visible; }, "Btn.Ghost", "Afficher le panneau latéral");
         showPanel.MinHeight = 22;
         showPanel.Padding = new Thickness(8, 0, 8, 0);
         showPanel.FontSize = 11;
@@ -308,39 +308,39 @@ public sealed class MainWindow : ChromeWindow
             mi.Click += (_, _) => a();
             m.Items.Add(mi);
         }
-        Item("Rename…", () =>
+        Item("Renommer…", () =>
         {
-            var n = DialogWindow.Prompt(this, "Rename profile", "Profile name", p.Name);
+            var n = DialogWindow.Prompt(this, "Renommer le profil", "Nom du profil", p.Name);
             if (string.IsNullOrWhiteSpace(n)) return;
             p.Name = n;
             _deck.ProfileEdited(p);
         });
-        Item("Icon…", () =>
+        Item("Icône…", () =>
         {
             var ic = IconPickerWindow.Pick(this, IconSpec.Glyph(p.Glyph));
             if (ic is { Kind: IconKinds.Glyph }) { p.Glyph = ic.Value; _deck.ProfileEdited(p); }
-            else if (ic != null) DialogWindow.Info(this, "Profile icons", "Profiles use the built-in glyph icons; pick one from the categories.");
+            else if (ic != null) DialogWindow.Info(this, "Icônes du profil", "Les profils utilisent les icônes intégrées ; choisissez-en une parmi les catégories.");
         });
-        Item("Shortcut…", () =>
+        Item("Raccourci…", () =>
         {
-            var d = DialogWindow.Prompt(this, "Profile shortcut", "Global shortcut that switches to this profile, e.g. CTRL + ALT + 1 (empty = none).", p.Hotkey);
+            var d = DialogWindow.Prompt(this, "Raccourci du profil", "Raccourci global permettant d’activer ce profil, par exemple CTRL + ALT + 1 (laisser vide pour aucun raccourci).", p.Hotkey);
             if (d == null) return;
-            if (d.Length > 0 && !KeyChord.TryParse(d, out _)) { DialogWindow.Info(this, "Not a valid key combination", d); return; }
+            if (d.Length > 0 && !KeyChord.TryParse(d, out _)) { DialogWindow.Info(this, "Combinaison de touches invalide", d); return; }
             p.Hotkey = KeyChord.Normalize(d);
             _deck.ProfileEdited(p);
             var reg = _deck.Hotkeys.Registrations.FirstOrDefault(r => r.Chord == p.Hotkey);
             if (reg is { Ok: false }) UiHost.Instance.Toast($"{reg.Chord}: {reg.Error}", ToastKind.Warning);
         });
-        Item("Add page", () => _deck.AddPage(p));
+        Item("Ajouter une page", () => _deck.AddPage(p));
         m.Items.Add(new Separator());
-        Item("Duplicate", () => _deck.DuplicateProfile(p));
-        Item("Move up", () => _deck.MoveProfile(p, -1));
-        Item("Move down", () => _deck.MoveProfile(p, 1));
-        Item("Export profile…", () => ExportProfile(p));
+        Item("Dupliquer", () => _deck.DuplicateProfile(p));
+        Item("Déplacer vers le haut", () => _deck.MoveProfile(p, -1));
+        Item("Déplacer vers le bas", () => _deck.MoveProfile(p, 1));
+        Item("Exporter le profil…", () => ExportProfile(p));
         m.Items.Add(new Separator());
-        Item("Delete…", () =>
+        Item("Supprimer…", () =>
         {
-            if (DialogWindow.Confirm(this, $"Delete profile \"{p.Name}\"?", $"Its {p.Pages.Sum(x => x.Buttons.Count)} button(s) will be removed. This cannot be undone.", "DELETE", true))
+            if (DialogWindow.Confirm(this, $"Supprimer le profil \"{p.Name}\" ?", $"Ses {p.Pages.Sum(x => x.Buttons.Count)} bouton(s) seront supprimés. Cette action est irréversible.", "SUPPRIMER", true))
                 _deck.DeleteProfile(p);
         }, _deck.Config.Profiles.Count > 1);
         return m;
@@ -367,19 +367,19 @@ public sealed class MainWindow : ChromeWindow
 
     private void ExportProfile(Profile p)
     {
-        var path = Pickers.Save(this, "Virtual Stream Deck profile|*.vsdprofile", p.Name + ".vsdprofile");
+        var path = Pickers.Save(this, "Profil Virtual Stream Deck|*.vsdprofile", p.Name + ".vsdprofile");
         if (path == null) return;
         try
         {
             ConfigStore.WriteExport(ConfigStore.BuildProfileExport(_deck.Config, p), path);
-            UiHost.Instance.Toast($"Exported \"{p.Name}\"", ToastKind.Success);
+            UiHost.Instance.Toast($"Exportation de \"{p.Name}\" terminée", ToastKind.Success);
         }
-        catch (Exception ex) { DialogWindow.Info(this, "Export failed", ex.Message); }
+        catch (Exception ex) { DialogWindow.Info(this, "Échec de l’exportation", ex.Message); }
     }
 
     private void ImportProfile()
     {
-        var path = Pickers.File(this, "Virtual Stream Deck profile or configuration|*.vsdprofile;*.vsdconfig|All files|*.*");
+        var path = Pickers.File(this, "Profil ou configuration Virtual Stream Deck|*.vsdprofile;*.vsdconfig|Tous les fichiers|*.*");
         if (path == null) return;
         try
         {
@@ -393,7 +393,7 @@ public sealed class MainWindow : ChromeWindow
             _deck.SaveNow();
             _deck.RegisterHotkeys();
             _deck.ReplaceConfig(_deck.Config);
-            UiHost.Instance.Toast($"Imported {added.Count} profile(s)", ToastKind.Success);
+            UiHost.Instance.Toast($"{added.Count} profil(s) importé(s)", ToastKind.Success);
         }
         catch (Exception ex) { DialogWindow.Info(this, "Import failed", ex.Message); }
     }
@@ -425,10 +425,10 @@ public sealed class MainWindow : ChromeWindow
                 if (_deck.EditMode && p.Pages.Count > 1)
                 {
                     var cm = new ContextMenu();
-                    var del = new MenuItem { Header = $"Delete page {i + 1}…" };
+                    var del = new MenuItem { Header = $"Supprimer la page {i + 1}…" };
                     del.Click += (_, _) =>
                     {
-                        if (DialogWindow.Confirm(this, $"Delete page {idx + 1}?", $"Its {p.Pages[idx].Buttons.Count} button(s) will be removed.", "DELETE", true))
+                        if (DialogWindow.Confirm(this, $"Supprimer la page {idx + 1} ?", $"Ses {p.Pages[idx].Buttons.Count} bouton(s) seront supprimés.", "SUPPRIMER", true))
                             _deck.DeletePage(p, idx);
                     };
                     cm.Items.Add(del);
@@ -438,12 +438,12 @@ public sealed class MainWindow : ChromeWindow
             }
             if (_deck.EditMode)
             {
-                var add = F.IconButton("", "Add page", () => _deck.AddPage(p));
+                var add = F.IconButton("", "Ajouter une page", () => _deck.AddPage(p));
                 add.Width = add.Height = 34;
                 _pages.Children.Add(add);
             }
         }
-        _editHint.Text = _deck.EditMode ? "EDIT MODE — click a button to edit, drag to move, + to add" : "";
+        _editHint.Text = _deck.EditMode ? "MODE MODIFICATION — cliquez sur un bouton pour le modifier, faites-le glisser pour le déplacer, + pour en ajouter un" : "";
     }
 
     // ---- edit mode / side panel -------------------------------------------------------------
@@ -507,32 +507,32 @@ public sealed class MainWindow : ChromeWindow
             sp.Children.Add(new TextBlock { Text = value, FontSize = 11.5, FontWeight = FontWeights.SemiBold, VerticalAlignment = VerticalAlignment.Center });
             _statusBar.Children.Add(sp);
         }
-        Item("CPU", $"{m.CpuPercent}%");
-        Item("RAM", $"{m.RamPercent}%");
-        Item("NETWORK", m.Network);
-        if (!mic.Available) Item("MIC", "NO DEVICE", p.Warning, "No recording device");
-        else Item("MIC", mic.Muted ? "MUTED" : "ON AIR", mic.Muted ? p.Danger : p.Success, mic.DeviceName);
-        if (!cam.AnyCamera) Item("CAM", "NONE", p.TextMuted, "No camera detected");
-        else if (cam.AllDisabled) Item("CAM", "DISABLED", p.Danger, "Camera disabled in Device Manager");
-        else Item("CAM", cam.InUse ? "IN USE" : "IDLE", cam.InUse ? p.Danger : p.TextMuted, cam.InUse ? "Used by " + string.Join(", ", cam.UsedBy) : string.Join(", ", cam.Devices.Select(d => d.Name)));
-        if (spk.Available) Item("AUDIO", spk.Muted ? "MUTED" : $"{spk.VolumePercent}%", null, spk.DeviceName);
-        if (_deck.Config.Settings.ObsEnabled) Item("OBS", _deck.Obs.Status == ObsStatus.Connected ? (_deck.Obs.Streaming ? "LIVE" : "READY") : "OFFLINE",
+        Item("PROCESSEUR", $"{m.CpuPercent}%");
+        Item("MÉMOIRE", $"{m.RamPercent}%");
+        Item("RÉSEAU", m.Network);
+        if (!mic.Available) Item("MICRO", "AUCUN APPAREIL", p.Warning, "Aucun périphérique d’enregistrement");
+        else Item("MICRO", mic.Muted ? "EN SOURDINE" : "EN DIRECT", mic.Muted ? p.Danger : p.Success, mic.DeviceName);
+        if (!cam.AnyCamera) Item("CAMÉRA", "AUCUNE", p.TextMuted, "Aucune caméra détectée");
+        else if (cam.AllDisabled) Item("CAMÉRA", "DÉSACTIVÉE", p.Danger, "Caméra désactivée dans le Gestionnaire de périphériques");
+        else Item("CAMÉRA", cam.InUse ? "EN COURS D’UTILISATION" : "INACTIVE", cam.InUse ? p.Danger : p.TextMuted, cam.InUse ? "Utilisée par " + string.Join(", ", cam.UsedBy) : string.Join(", ", cam.Devices.Select(d => d.Name)));
+        if (spk.Available) Item("AUDIO", spk.Muted ? "EN SOURDINE" : $"{spk.VolumePercent}%", null, spk.DeviceName);
+        if (_deck.Config.Settings.ObsEnabled) Item("OBS", _deck.Obs.Status == ObsStatus.Connected ? (_deck.Obs.Streaming ? "EN DIRECT" : "PRÊT") : "HORS LIGNE",
             _deck.Obs.Status == ObsStatus.Connected ? (_deck.Obs.Streaming ? p.Danger : p.Success) : p.TextMuted, _deck.Obs.StatusText);
-        if (_deck.Config.Settings.AutoProfile) Item("AUTO", "ON", p.Accent, "Automatic profile switching");
+        if (_deck.Config.Settings.AutoProfile) Item("AUTO", "ON", p.Accent, "Changement automatique de profil");
         Item("", DateTime.Now.ToString("HH:mm"));
 
         // header indicator: overall health of the things the deck depends on
         var failedHotkeys = _deck.Hotkeys.Registrations.Count(r => !r.Ok);
         string text;
         System.Windows.Media.Color c;
-        if (_deck.Config.Settings.ObsEnabled && _deck.Obs.Status == ObsStatus.Connected) { text = "OBS CONNECTED"; c = p.Success; }
-        else if (_deck.Config.Settings.ObsEnabled) { text = "OBS OFFLINE"; c = p.Warning; }
+        if (_deck.Config.Settings.ObsEnabled && _deck.Obs.Status == ObsStatus.Connected) { text = "OBS CONNECTÉ"; c = p.Success; }
+        else if (_deck.Config.Settings.ObsEnabled) { text = "OBS HORS LIGNE"; c = p.Warning; }
         else if (failedHotkeys > 0) { text = $"{failedHotkeys} SHORTCUT CONFLICT{(failedHotkeys > 1 ? "S" : "")}"; c = p.Warning; }
-        else { text = "READY"; c = p.Success; }
+        else { text = "PRÊT"; c = p.Success; }
         _conn.Text = text;
         _connDot.Fill = ThemeManager.Brush(c);
         ((FrameworkElement)_conn.Parent).ToolTip = _deck.Config.Settings.ObsEnabled ? _deck.Obs.StatusText
-            : failedHotkeys > 0 ? string.Join("\n", _deck.Hotkeys.Registrations.Where(r => !r.Ok).Select(r => $"{r.Chord}: {r.Error}")) : "Audio, hotkeys and devices are working";
+            : failedHotkeys > 0 ? string.Join("\n", _deck.Hotkeys.Registrations.Where(r => !r.Ok).Select(r => $"{r.Chord}: {r.Error}")) : "L’audio, les raccourcis et les périphériques fonctionnent";
     }
 
     // ---- keyboard / closing -----------------------------------------------------------------
