@@ -159,7 +159,6 @@ public sealed class DeckButtonView : Grid
 
         _content.Children.Clear();
 
-var stateText = _live.State ?? subtitle;
 var hasTitle = title.Length > 0;
 var hasSub = stateText.Length > 0;
 
