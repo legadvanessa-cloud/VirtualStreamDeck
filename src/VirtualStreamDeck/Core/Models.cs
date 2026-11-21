@@ -2,9 +2,9 @@ using System.Text.Json.Serialization;
 
 namespace VirtualStreamDeck.Core;
 
-// The persisted model is deliberately plain: POCOs with string "command" fields rather than deep
-// enum hierarchies, so a config written by a newer build (or edited by hand) still loads and an
-// unknown value degrades to "unsupported action" instead of a crash.
+// The persisted model is deliberately plain: POCOs with champs de chaîne "commande" plutôt que des hiérarchies d’énumérations complexes, afin qu’une configuration créée par une version
+// plus récente (ou modifiée manuellement) puisse toujours être chargée et qu’une valeur inconnue
+// soit convertie en "action non prise en charge" au lieu de provoquer un plantage.
 
 public static class ActionTypes
 {
@@ -26,25 +26,25 @@ public static class ActionTypes
 
     public static readonly (string Id, string Label)[] All =
     {
-        (None, "No action"),
-        (LaunchApp, "Launch application"),
-        (OpenUrl, "Open URL / website"),
-        (OpenPath, "Open file or folder"),
-        (Hotkey, "Keyboard shortcut"),
-        (Macro, "Macro (sequence)"),
-        (TypeText, "Type text"),
-        (Sound, "Play sound"),
-        (Media, "Media control"),
-        (System, "System control"),
-        (Power, "Power"),
-        (Deck, "Deck navigation"),
+        (None, "Aucune action"),
+        (LaunchApp, "Lancer une application"),
+        (OpenUrl, "Ouvrir une URL / un site web"),
+        (OpenPath, "Ouvrir un fichier ou un dossier"),
+        (Hotkey, "Raccourci clavier"),
+        (Macro, "Macro (séquence)"),
+        (TypeText, "Saisir du texte"),
+        (Sound, "Lire un son"),
+        (Media, "Contrôle multimédia"),
+        (System, "Contrôle du système"),
+        (Power, "Alimentation"),
+        (Deck, "Navigation dans le panneau"),
         (Obs, "OBS Studio"),
         (Discord, "Discord"),
-        (RunCommand, "Run command / script (user-defined)"),
+        (RunCommand, "Exécuter une commande / un script (défini par l’utilisateur)"),
     };
 
     public static string Label(string? id) =>
-        All.FirstOrDefault(a => a.Id == id).Label ?? "Unknown action";
+        All.FirstOrDefault(a => a.Id == id).Label ?? "Action inconnue";
 }
 
 public static class PowerCommands
@@ -58,8 +58,8 @@ public static class PowerCommands
 
     public static readonly (string Id, string Label)[] All =
     {
-        (Lock, "Lock PC"), (Sleep, "Sleep"), (Hibernate, "Hibernate"),
-        (Restart, "Restart"), (Shutdown, "Shut down"), (SignOut, "Sign out"),
+        (Lock, "Verrouiller le PC"), (Sleep, "Mettre en veille"), (Hibernate, "Mettre en veille prolongée"),
+        (Restart, "Redémarrer"), (Shutdown, "Éteindre"), (SignOut, "Se déconnecter"),
     };
 
     /// <summary>Commands that end the session or power state and always need confirmation.</summary>
@@ -78,8 +78,8 @@ public static class MediaCmds
 
     public static readonly (string Id, string Label)[] All =
     {
-        (PlayPause, "Play / Pause"), (Next, "Next track"), (Previous, "Previous track"),
-        (Stop, "Stop"), (VolumeUp, "Volume up"), (VolumeDown, "Volume down"), (Mute, "Mute / unmute"),
+        (PlayPause, "Lire / mettre en pause"), (Next, "Piste suivante"), (Previous, "Piste précédente"),
+        (Stop, "Arrêter"), (VolumeUp, "Augmenter le volume"), (VolumeDown, "Diminuer le volume"), (Mute, "Couper / rétablir le son"),
     };
 }
 
@@ -113,31 +113,31 @@ public static class SysCommands
 
     public static readonly (string Id, string Label)[] All =
     {
-        (MicToggle, "Microphone: toggle mute"),
-        (MicMute, "Microphone: mute"),
-        (MicUnmute, "Microphone: unmute"),
-        (MicVolumeUp, "Microphone: volume up"),
-        (MicVolumeDown, "Microphone: volume down"),
-        (MicVolumeSet, "Microphone: set volume"),
-        (MicMonitorToggle, "Microphone: monitor (hear yourself)"),
-        (MicCycle, "Microphone: switch to next device"),
-        (MasterMuteToggle, "Speakers: toggle mute"),
-        (MasterVolumeUp, "Speakers: volume up"),
-        (MasterVolumeDown, "Speakers: volume down"),
-        (MasterVolumeSet, "Speakers: set volume"),
-        (OutputCycle, "Default output: cycle devices"),
-        (OutputSet, "Default output: set device"),
-        (InputSet, "Default input: set device"),
-        (CameraStatus, "Camera: status + privacy settings"),
-        (CameraDeviceToggle, "Camera: disable / enable device (admin)"),
-        (BrightnessUp, "Brightness up"),
-        (BrightnessDown, "Brightness down"),
-        (BrightnessSet, "Brightness: set level"),
-        (WifiToggle, "Wi-Fi: toggle radio"),
-        (BluetoothToggle, "Bluetooth: toggle radio"),
-        (NightLight, "Night light (opens Windows settings)"),
-        (WindowsSettings, "Open Windows Settings"),
-        (TaskManager, "Open Task Manager"),
+        (MicToggle, "Microphone : activer/désactiver le son"),
+        (MicMute, "Microphone : couper le son"),
+        (MicUnmute, "Microphone : rétablir le son"),
+        (MicVolumeUp, "Microphone : augmenter le volume"),
+        (MicVolumeDown, "Microphone : diminuer le volume"),
+        (MicVolumeSet, "Microphone : régler le volume"),
+        (MicMonitorToggle, "Microphone : retour audio (s’entendre)"),
+        (MicCycle, "Microphone : passer au périphérique suivant"),
+        (MasterMuteToggle, "Haut-parleurs : activer/désactiver le son"),
+        (MasterVolumeUp, "Haut-parleurs : augmenter le volume"),
+        (MasterVolumeDown, "Haut-parleurs : diminuer le volume"),
+        (MasterVolumeSet, "Haut-parleurs : régler le volume"),
+        (OutputCycle, "Sortie par défaut : parcourir les périphériques"),
+        (OutputSet, "Sortie par défaut : choisir le périphérique"),
+        (InputSet, "Entrée par défaut : choisir le périphérique"),
+        (CameraStatus, "Caméra : état et paramètres de confidentialité"),
+        (CameraDeviceToggle, "Caméra : désactiver / activer le périphérique (administrateur)"),
+        (BrightnessUp, "Augmenter la luminosité"),
+        (BrightnessDown, "Diminuer la luminosité"),
+        (BrightnessSet, "Luminosité : régler le niveau"),
+        (WifiToggle, "Wi-Fi : activer/désactiver la connexion"),
+        (BluetoothToggle, "Bluetooth : activer/désactiver la connexion"),
+        (NightLight, "Éclairage nocturne (ouvre les paramètres Windows)"),
+        (WindowsSettings, "Ouvrir les paramètres Windows"),
+        (TaskManager, "Ouvrir le Gestionnaire des tâches"),
     };
 }
 
@@ -156,15 +156,15 @@ public static class DeckCommands
 
     public static readonly (string Id, string Label)[] All =
     {
-        (SwitchProfile, "Switch to profile"),
-        (NextProfile, "Next profile"),
-        (NextPage, "Next page"),
-        (PreviousPage, "Previous page"),
-        (GoToPage, "Go to page"),
-        (StopAllSounds, "Stop all sounds"),
-        (ToggleSurface, "Toggle control surface"),
-        (ToggleAutoProfile, "Toggle auto profile switching"),
-        (OpenMainWindow, "Show main window"),
+        (SwitchProfile, "Passer au profil"),
+        (NextProfile, "Profil suivant"),
+        (NextPage, "Page suivante"),
+        (PreviousPage, "Page précédente"),
+        (GoToPage, "Aller à la page"),
+        (StopAllSounds, "Arrêter tous les sons"),
+        (ToggleSurface, "Afficher/masquer la surface de contrôle"),
+        (ToggleAutoProfile, "Activer/désactiver le changement automatique de profil"),
+        (OpenMainWindow, "Afficher la fenêtre principale"),
     };
 }
 
@@ -183,10 +183,10 @@ public static class ObsCommands
 
     public static readonly (string Id, string Label)[] All =
     {
-        (StartStream, "Start streaming"), (StopStream, "Stop streaming"), (ToggleStream, "Toggle streaming"),
-        (StartRecord, "Start recording"), (StopRecord, "Stop recording"), (ToggleRecord, "Toggle recording"),
-        (PauseRecord, "Pause / resume recording"), (Scene, "Switch scene"),
-        (ToggleSource, "Toggle source visibility"), (ToggleMute, "Toggle audio source mute"),
+        (StartStream, "Démarrer le streaming"), (StopStream, "Arrêter le streaming"), (ToggleStream, "Activer/désactiver le streaming"),
+        (StartRecord, "Démarrer l’enregistrement"), (StopRecord, "Arrêter l’enregistrement"), (ToggleRecord, "Activer/désactiver l’enregistrement"),
+        (PauseRecord, "Mettre en pause / reprendre l’enregistrement"), (Scene, "Changer de scène"),
+        (ToggleSource, "Afficher/masquer la source"), (ToggleMute, "Activer/désactiver le son de la source audio"),
     };
 }
 
@@ -199,10 +199,10 @@ public static class DiscordCommands
 
     public static readonly (string Id, string Label)[] All =
     {
-        (Launch, "Launch / focus Discord"),
-        (Focus, "Focus Discord window"),
-        (MuteKeybind, "Mute (sends your Discord keybind)"),
-        (DeafenKeybind, "Deafen (sends your Discord keybind)"),
+        (Launch, "Lancer Discord / activer sa fenêtre"),
+        (Focus, "Activer la fenêtre Discord"),
+        (MuteKeybind, "Couper le micro (utilise le raccourci Discord)"),
+        (DeafenKeybind, "Désactiver le son entrant (utilise le raccourci Discord)"),
     };
 }
 
@@ -220,9 +220,9 @@ public static class MacroStepTypes
 
     public static readonly (string Id, string Label)[] All =
     {
-        (Combo, "Key combination"), (Key, "Key"), (Text, "Type text"), (Delay, "Wait"),
-        (Click, "Mouse click"), (Move, "Mouse move"), (Launch, "Launch app"),
-        (KeyDown, "Key down (hold)"), (KeyUp, "Key up (release)"),
+        (Combo, "Combinaison de touches"), (Key, "Touche"), (Text, "Saisir du texte"), (Delay, "Attendre"),
+        (Click, "Clic de souris"), (Move, "Déplacement de la souris"), (Launch, "Lancer une application"),
+        (KeyDown, "Touche enfoncée (maintenir)"), (KeyUp, "Touche relâchée (relâcher)"),
     };
 }
 
@@ -241,15 +241,15 @@ public sealed class MacroStep
 
     public string Describe() => Type switch
     {
-        MacroStepTypes.Combo => Value.Length == 0 ? "Key combination (not set)" : Value,
-        MacroStepTypes.Key => Value.Length == 0 ? "Key (not set)" : Value,
-        MacroStepTypes.KeyDown => $"HOLD {Value}",
-        MacroStepTypes.KeyUp => $"RELEASE {Value}",
-        MacroStepTypes.Text => $"TYPE \"{Value}\"",
-        MacroStepTypes.Delay => $"WAIT {Number} ms",
-        MacroStepTypes.Click => AtPosition ? $"{Button.ToUpperInvariant()} CLICK at {X},{Y}" : $"{Button.ToUpperInvariant()} CLICK",
-        MacroStepTypes.Move => $"MOVE MOUSE to {X},{Y}",
-        MacroStepTypes.Launch => $"LAUNCH {Path.GetFileName(Value)}",
+        MacroStepTypes.Combo => Value.Length == 0 ? "Combinaison de touches (non définie)" : Value,
+        MacroStepTypes.Key => Value.Length == 0 ? "Touche (non définie)" : Value,
+        MacroStepTypes.KeyDown => $"MAINTENIR {Value}",
+        MacroStepTypes.KeyUp => $"RELÂCHER {Value}",
+        MacroStepTypes.Text => $"SAISIR \"{Value}\"",
+        MacroStepTypes.Delay => $"ATTENDRE {Number} ms",
+        MacroStepTypes.Click => AtPosition ? $"CLIC {Button.ToUpperInvariant()} aux coordonnées {X},{Y}" : $"CLIC {Button.ToUpperInvariant()}",
+        MacroStepTypes.Move => $"DÉPLACER LA SOURIS vers {X},{Y}",
+        MacroStepTypes.Launch => $"LANCER {Path.GetFileName(Value)}",
         _ => Type,
     };
 }
@@ -323,10 +323,10 @@ public static class ButtonModes
 
     public static readonly (string Id, string Label)[] All =
     {
-        (Standard, "Standard (press to run)"),
-        (Momentary, "Momentary (active while held)"),
-        (Toggle, "Toggle (two states)"),
-        (MultiState, "Multi-state (cycles)"),
+        (Standard, "Standard (appuyer pour exécuter)"),
+        (Momentary, "Momentané (actif tant que la touche est maintenue)"),
+        (Toggle, "Bascule (deux états)"),
+        (MultiState, "À états multiples (défilement)"),
     };
 }
 
@@ -350,7 +350,7 @@ public sealed class DeckButton
     public string Title { get; set; } = "";
     public string Subtitle { get; set; } = "";
     public IconSpec Icon { get; set; } = new();
-    /// <summary>Hex colours (#RRGGBB); null means "use theme".</summary>
+    /// <summary>Hex colours (#RRGGBB); null signifie "utiliser le thème".</summary>
     public string? Background { get; set; }
     public string? Accent { get; set; }
     public string? TextColor { get; set; }
@@ -424,12 +424,12 @@ public static class GlobalCommands
 
     public static readonly (string Id, string Label)[] Fixed =
     {
-        (ToggleMic, "Toggle microphone"),
-        (ToggleSurface, "Toggle control surface"),
-        (ShowMain, "Show main window"),
-        (StopSounds, "Stop all sounds"),
-        (NextProfile, "Next profile"),
-        (ToggleAutoProfile, "Toggle auto profile"),
+        (ToggleMic, "Activer/désactiver le microphone"),
+        (ToggleSurface, "Afficher/masquer la surface de contrôle"),
+        (ShowMain, "Afficher la fenêtre principale"),
+        (StopSounds, "Arrêter tous les sons"),
+        (NextProfile, "Profil suivant"),
+        (ToggleAutoProfile, "Activer/désactiver le profil automatique"),
     };
 }
 
