@@ -166,8 +166,8 @@ var iconBrush = ThemeManager.Brush(_live.Tone == LiveTone.Alert ? p.Danger : has
 var iconEl = IconVisual.Create(_live.Icon != null && IsStockIcon(icon) ? _live.Icon : icon, 36, iconBrush);
 
 var iconScale = !hasTitle && !hasSub ? 2.00 : 
-                !hasTitle && hasSub ? 1.40 :
-                1.50;
+                !hasTitle && hasSub ? 1.35 :
+                1.45;
 iconEl.LayoutTransform = new ScaleTransform(iconScale, iconScale);
 iconEl.HorizontalAlignment = HorizontalAlignment.Center;
 iconEl.VerticalAlignment = VerticalAlignment.Center;
