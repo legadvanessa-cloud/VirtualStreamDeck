@@ -70,9 +70,13 @@ public sealed class DeckButtonView : Grid
 {
     private readonly Border _face = new();
     private readonly Border _flash = new() { IsHitTestVisible = false, Opacity = 0 };
-    private readonly Border _progress = new() { Height = 3, VerticalAlignment = VerticalAlignment.Bottom, IsHitTestVisible = false, Visibility = Visibility.Collapsed };
-    private readonly ScaleTransform _progressScale = new(0, 1);
-    private readonly Border _meterTrack = new() { Height = 5, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 9), CornerRadius = new CornerRadius(2.5), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+    private readonly Border _progress = new()
+{
+    VerticalAlignment = VerticalAlignment.Bottom,
+    IsHitTestVisible = false,
+    Visibility = Visibility.Collapsed
+};    
+    private readonly ScaleTransform _progressScale = new(0, 1) { CenterX = 0, CenterY = 0.5 };    private readonly Border _meterTrack = new() { Height = 5, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 9), CornerRadius = new CornerRadius(2.5), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
     private readonly Border _meterFill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, CornerRadius = new CornerRadius(2.5) };
     private readonly ScaleTransform _meterScale = new(0, 1);
     private readonly Rectangle _editOutline = new() { IsHitTestVisible = false, StrokeThickness = 1.5, StrokeDashArray = new DoubleCollection { 4, 3 }, Visibility = Visibility.Collapsed };
@@ -98,6 +102,7 @@ public sealed class DeckButtonView : Grid
         SnapsToDevicePixels = true;
         RenderTransformOrigin = new Point(0.5, 0.5);
         RenderTransform = new TransformGroup { Children = { _scale, _shake } };
+        SizeChanged += (_, _) => UpdateProgressSize();
         Stylus.SetIsPressAndHoldEnabled(this, false);
         Stylus.SetIsFlicksEnabled(this, false);
         AutomationProperties_SetName();
@@ -218,7 +223,28 @@ _content.Children.Add(group);
         _dot.Fill = ThemeManager.Brush(toneColor ?? accent);
         _dot.Visibility = toneColor != null ? Visibility.Visible : Visibility.Collapsed;
         _editOutline.Stroke = ThemeManager.Brush(p.TextMuted);
-        _progress.Background = ThemeManager.Brush(accent);
+        _progress.Background = new LinearGradientBrush
+{
+    StartPoint = new Point(0, 0.5),
+    EndPoint = new Point(1, 0.5),
+    GradientStops = new GradientStopCollection
+    {
+        new GradientStop(Color.FromRgb(235, 65, 65), 0),
+        new GradientStop(Color.FromRgb(245, 190, 65), 0.5),
+        new GradientStop(Color.FromRgb(65, 190, 105), 1)
+    }
+};
+        private void UpdateProgressSize()
+{
+    // Épaisseur et marges proportionnelles à la taille réelle du bouton.
+    _progress.Height = Math.Clamp(ActualHeight * 0.045, 2, 8);
+
+    var horizontalInset = Math.Clamp(ActualWidth * 0.06, 3, 14);
+    var bottomInset = Math.Clamp(ActualHeight * 0.06, 2, 10);
+
+    _progress.Margin = new Thickness(horizontalInset, 0, horizontalInset, bottomInset);
+    _progress.CornerRadius = new CornerRadius(_progress.Height / 2);
+}
         UpdateProgress(_live.Progress);
 
         var tip = _live.Tooltip;
