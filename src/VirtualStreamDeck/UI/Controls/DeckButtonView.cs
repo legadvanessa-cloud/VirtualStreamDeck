@@ -164,7 +164,7 @@ public sealed class DeckButtonView : Grid
         var hasSub = stateText.Length > 0;
         iconEl.VerticalAlignment = VerticalAlignment.Top;
         iconEl.Margin = new Thickness(0, hasTitle ? (hasSub ? 13 : 19) : (hasSub ? 22 : 30), 0, 0);
-        if (!hasTitle && !hasSub) { iconEl.RenderTransformOrigin = new Point(0.5, 0.5); iconEl.RenderTransform = new ScaleTransform(1.25, 1.25); }
+        if (!hasTitle && !hasSub) { iconEl.RenderTransformOrigin = new Point(0.5, 0.5); iconEl.RenderTransform = new ScaleTransform(1.55, 1.55); }
         _content.Children.Add(iconEl);
 
         var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(4, hasSub ? 60 : 66, 4, 0) };
