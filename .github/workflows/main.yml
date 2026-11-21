@@ -1,4 +1,5 @@
 name: Build VirtualStreamDeck
+
 on:
   workflow_dispatch:
 
@@ -10,4 +11,8 @@ jobs:
       - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: 8.0.x
-      - run: dotnet build VirtualStreamDeck.sln -c Release
+      - run: dotnet publish VirtualStreamDeck.sln -c Release -r win-x64 --self-contained true -p:PublishSingleFile=true -o publish
+      - uses: actions/upload-artifact@v4
+        with:
+          name: VirtualStreamDeck-portable
+          path: publish
