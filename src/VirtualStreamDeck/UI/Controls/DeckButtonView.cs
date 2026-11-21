@@ -158,44 +158,60 @@ public sealed class DeckButtonView : Grid
         };
 
         _content.Children.Clear();
-        var iconBrush = ThemeManager.Brush(_live.Tone == LiveTone.Alert ? p.Danger : hasCustomAccent ? accent : text);
-        var iconEl = IconVisual.Create(_live.Icon != null && IsStockIcon(icon) ? _live.Icon : icon, 36, iconBrush);
-        var hasTitle = title.Length > 0;
-        var hasSub = stateText.Length > 0;
-        iconEl.VerticalAlignment = VerticalAlignment.Top;
-        iconEl.Margin = new Thickness(0, hasTitle ? (hasSub ? 9 : 15) : (hasSub ? 18 : 30), 0, 0);
-        iconEl.RenderTransformOrigin = new Point(0.5, 0.5);
-        var iconScale = !hasTitle && !hasSub ? 2.00 : 1.45;
-        iconEl.RenderTransform = new ScaleTransform(iconScale, iconScale);
-        _content.Children.Add(iconEl);
 
-        var stack = new StackPanel { VerticalAlignment = VerticalAlignment.Top, Margin = new Thickness(4, hasSub ? 60 : 66, 4, 0) };
-        if (hasTitle)
-            stack.Children.Add(new TextBlock
-            {
-                Text = title,
-                FontFamily = IconVisual.Display,
-                FontSize = 10.5 * fs,
-                FontWeight = FontWeights.SemiBold,
-                Foreground = ThemeManager.Brush(text),
-                TextAlignment = TextAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                TextWrapping = title.Length > 14 ? TextWrapping.Wrap : TextWrapping.NoWrap,
-                MaxHeight = 26 * fs,
-            });
-        if (hasSub)
-            stack.Children.Add(new TextBlock
-            {
-                Text = stateText,
-                FontSize = 8.6 * fs,
-                FontWeight = toneColor != null ? FontWeights.Bold : FontWeights.Normal,
-                Foreground = ThemeManager.Brush(toneColor ?? ThemeManager.Mix(text, bg, 0.4)),
-                TextAlignment = TextAlignment.Center,
-                TextTrimming = TextTrimming.CharacterEllipsis,
-                Margin = new Thickness(0, 2, 0, 0),
-            });
-        if (!hasTitle && hasSub) stack.Margin = new Thickness(4, 70, 4, 0);
-        _content.Children.Add(stack);
+var stateText = _live.State ?? subtitle;
+var hasTitle = title.Length > 0;
+var hasSub = stateText.Length > 0;
+
+var iconBrush = ThemeManager.Brush(_live.Tone == LiveTone.Alert ? p.Danger : hasCustomAccent ? accent : text);
+var iconEl = IconVisual.Create(_live.Icon != null && IsStockIcon(icon) ? _live.Icon : icon, 36, iconBrush);
+
+var iconScale = !hasTitle && !hasSub ? 2.00 : 1.45;
+iconEl.LayoutTransform = new ScaleTransform(iconScale, iconScale);
+iconEl.HorizontalAlignment = HorizontalAlignment.Center;
+iconEl.VerticalAlignment = VerticalAlignment.Center;
+
+var group = new StackPanel
+{
+    VerticalAlignment = VerticalAlignment.Center,
+    HorizontalAlignment = HorizontalAlignment.Stretch
+};
+
+var iconSlot = new Grid { Height = hasTitle || hasSub ? 60 : 82 };
+iconSlot.Children.Add(iconEl);
+group.Children.Add(iconSlot);
+
+if (hasTitle)
+{
+    group.Children.Add(new TextBlock
+    {
+        Text = title,
+        FontFamily = IconVisual.Display,
+        FontSize = 10.5 * fs,
+        FontWeight = FontWeights.SemiBold,
+        Foreground = ThemeManager.Brush(text),
+        TextAlignment = TextAlignment.Center,
+        TextTrimming = TextTrimming.CharacterEllipsis,
+        TextWrapping = title.Length > 14 ? TextWrapping.Wrap : TextWrapping.NoWrap,
+        MaxHeight = 26 * fs,
+    });
+}
+
+if (hasSub)
+{
+    group.Children.Add(new TextBlock
+    {
+        Text = stateText,
+        FontSize = 8.6 * fs,
+        FontWeight = toneColor != null ? FontWeights.Bold : FontWeights.Normal,
+        Foreground = ThemeManager.Brush(toneColor ?? ThemeManager.Mix(text, bg, 0.4)),
+        TextAlignment = TextAlignment.Center,
+        TextTrimming = TextTrimming.CharacterEllipsis,
+        Margin = new Thickness(0, 2, 0, 0),
+    });
+}
+
+_content.Children.Add(group);
 
         _content.Opacity = _live.Tone == LiveTone.Dim ? 0.55 : 1;
         _dot.Fill = ThemeManager.Brush(toneColor ?? accent);
