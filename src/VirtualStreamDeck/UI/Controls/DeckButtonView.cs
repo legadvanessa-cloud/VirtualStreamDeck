@@ -71,12 +71,25 @@ public sealed class DeckButtonView : Grid
     private readonly Border _face = new();
     private readonly Border _flash = new() { IsHitTestVisible = false, Opacity = 0 };
     private readonly Border _progress = new()
-{
-    VerticalAlignment = VerticalAlignment.Bottom,
-    IsHitTestVisible = false,
-    Visibility = Visibility.Collapsed
-};    
-    private readonly ScaleTransform _progressScale = new(0, 1) { CenterX = 0, CenterY = 0.5 };    private readonly Border _meterTrack = new() { Height = 5, VerticalAlignment = VerticalAlignment.Bottom, Margin = new Thickness(12, 0, 12, 9), CornerRadius = new CornerRadius(2.5), IsHitTestVisible = false, Visibility = Visibility.Collapsed };
+    {
+        VerticalAlignment = VerticalAlignment.Bottom,
+        IsHitTestVisible = false,
+        Visibility = Visibility.Collapsed
+    };
+    private readonly ScaleTransform _progressScale = new(0, 1)
+    {
+        CenterX = 0,
+        CenterY = 0.5
+    };
+    private readonly Border _meterTrack = new()
+    {
+        Height = 5,
+        VerticalAlignment = VerticalAlignment.Bottom,
+        Margin = new Thickness(12, 0, 12, 9),
+        CornerRadius = new CornerRadius(2.5),
+        IsHitTestVisible = false,
+        Visibility = Visibility.Collapsed
+    };
     private readonly Border _meterFill = new() { HorizontalAlignment = HorizontalAlignment.Stretch, CornerRadius = new CornerRadius(2.5) };
     private readonly ScaleTransform _meterScale = new(0, 1);
     private readonly Rectangle _editOutline = new() { IsHitTestVisible = false, StrokeThickness = 1.5, StrokeDashArray = new DoubleCollection { 4, 3 }, Visibility = Visibility.Collapsed };
@@ -164,87 +177,76 @@ public sealed class DeckButtonView : Grid
 
         _content.Children.Clear();
 
-var hasTitle = title.Length > 0;
-var hasSub = stateText.Length > 0;
+        var hasTitle = title.Length > 0;
+        var hasSub = stateText.Length > 0;
 
-var iconBrush = ThemeManager.Brush(_live.Tone == LiveTone.Alert ? p.Danger : hasCustomAccent ? accent : text);
-var iconEl = IconVisual.Create(_live.Icon != null && IsStockIcon(icon) ? _live.Icon : icon, 36, iconBrush);
+        var iconBrush = ThemeManager.Brush(_live.Tone == LiveTone.Alert ? p.Danger : hasCustomAccent ? accent : text);
+        var iconEl = IconVisual.Create(_live.Icon != null && IsStockIcon(icon) ? _live.Icon : icon, 36, iconBrush);
 
-var iconScale = !hasTitle && !hasSub ? 2.00 : 
-                !hasTitle && hasSub ? 1.35 :
-                1.45;
-iconEl.LayoutTransform = new ScaleTransform(iconScale, iconScale);
-iconEl.HorizontalAlignment = HorizontalAlignment.Center;
-iconEl.VerticalAlignment = VerticalAlignment.Center;
+        var iconScale = !hasTitle && !hasSub ? 2.00 :
+                        !hasTitle && hasSub ? 1.35 :
+                        1.45;
+        iconEl.LayoutTransform = new ScaleTransform(iconScale, iconScale);
+        iconEl.HorizontalAlignment = HorizontalAlignment.Center;
+        iconEl.VerticalAlignment = VerticalAlignment.Center;
 
-var group = new StackPanel
-{
-    VerticalAlignment = VerticalAlignment.Center,
-    HorizontalAlignment = HorizontalAlignment.Stretch
-};
+        var group = new StackPanel
+        {
+            VerticalAlignment = VerticalAlignment.Center,
+            HorizontalAlignment = HorizontalAlignment.Stretch
+        };
 
-var iconSlot = new Grid { Height = hasTitle || hasSub ? 60 : 82 };
-iconSlot.Children.Add(iconEl);
-group.Children.Add(iconSlot);
+        var iconSlot = new Grid { Height = hasTitle || hasSub ? 60 : 82 };
+        iconSlot.Children.Add(iconEl);
+        group.Children.Add(iconSlot);
 
-if (hasTitle)
-{
-    group.Children.Add(new TextBlock
-    {
-        Text = title,
-        FontFamily = IconVisual.Display,
-        FontSize = 10.5 * fs,
-        FontWeight = FontWeights.SemiBold,
-        Foreground = ThemeManager.Brush(text),
-        TextAlignment = TextAlignment.Center,
-        TextTrimming = TextTrimming.CharacterEllipsis,
-        TextWrapping = title.Length > 14 ? TextWrapping.Wrap : TextWrapping.NoWrap,
-        MaxHeight = 26 * fs,
-    });
-}
+        if (hasTitle)
+        {
+            group.Children.Add(new TextBlock
+            {
+                Text = title,
+                FontFamily = IconVisual.Display,
+                FontSize = 10.5 * fs,
+                FontWeight = FontWeights.SemiBold,
+                Foreground = ThemeManager.Brush(text),
+                TextAlignment = TextAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                TextWrapping = title.Length > 14 ? TextWrapping.Wrap : TextWrapping.NoWrap,
+                MaxHeight = 26 * fs,
+            });
+        }
 
-if (hasSub)
-{
-    group.Children.Add(new TextBlock
-    {
-        Text = stateText,
-        FontSize = 8.6 * fs,
-        FontWeight = toneColor != null ? FontWeights.Bold : FontWeights.Normal,
-        Foreground = ThemeManager.Brush(toneColor ?? ThemeManager.Mix(text, bg, 0.4)),
-        TextAlignment = TextAlignment.Center,
-        TextTrimming = TextTrimming.CharacterEllipsis,
-        Margin = new Thickness(0, 2, 0, 0),
-    });
-}
+        if (hasSub)
+        {
+            group.Children.Add(new TextBlock
+            {
+                Text = stateText,
+                FontSize = 8.6 * fs,
+                FontWeight = toneColor != null ? FontWeights.Bold : FontWeights.Normal,
+                Foreground = ThemeManager.Brush(toneColor ?? ThemeManager.Mix(text, bg, 0.4)),
+                TextAlignment = TextAlignment.Center,
+                TextTrimming = TextTrimming.CharacterEllipsis,
+                Margin = new Thickness(0, 2, 0, 0),
+            });
+        }
 
-_content.Children.Add(group);
+        _content.Children.Add(group);
 
         _content.Opacity = _live.Tone == LiveTone.Dim ? 0.55 : 1;
         _dot.Fill = ThemeManager.Brush(toneColor ?? accent);
         _dot.Visibility = toneColor != null ? Visibility.Visible : Visibility.Collapsed;
         _editOutline.Stroke = ThemeManager.Brush(p.TextMuted);
         _progress.Background = new LinearGradientBrush
-{
-    StartPoint = new Point(0, 0.5),
-    EndPoint = new Point(1, 0.5),
-    GradientStops = new GradientStopCollection
-    {
-        new GradientStop(Color.FromRgb(235, 65, 65), 0),
-        new GradientStop(Color.FromRgb(245, 190, 65), 0.5),
-        new GradientStop(Color.FromRgb(65, 190, 105), 1)
-    }
-};
-        private void UpdateProgressSize()
-{
-    // Épaisseur et marges proportionnelles à la taille réelle du bouton.
-    _progress.Height = Math.Clamp(ActualHeight * 0.045, 2, 8);
-
-    var horizontalInset = Math.Clamp(ActualWidth * 0.06, 3, 14);
-    var bottomInset = Math.Clamp(ActualHeight * 0.06, 2, 10);
-
-    _progress.Margin = new Thickness(horizontalInset, 0, horizontalInset, bottomInset);
-    _progress.CornerRadius = new CornerRadius(_progress.Height / 2);
-}
+        {
+            StartPoint = new Point(0, 0.5),
+            EndPoint = new Point(1, 0.5),
+            GradientStops = new GradientStopCollection
+            {
+                new GradientStop(Color.FromRgb(235, 65, 65), 0),
+                new GradientStop(Color.FromRgb(245, 190, 65), 0.5),
+                new GradientStop(Color.FromRgb(65, 190, 105), 1)
+            }
+        };
         UpdateProgress(_live.Progress);
 
         var tip = _live.Tooltip;
@@ -254,6 +256,18 @@ _content.Children.Add(group);
             $"{(hasTitle ? title : actionLabel)}{(tip != null ? "\n" + tip : "")}{hk}";
         System.Windows.Automation.AutomationProperties.SetName(this, $"{title} {stateText}".Trim());
         ApplyFace();
+    }
+
+    /// <summary>Resize the progress bar proportionally to the button's actual rendered size.</summary>
+    private void UpdateProgressSize()
+    {
+        _progress.Height = Math.Clamp(ActualHeight * 0.045, 2, 8);
+
+        var horizontalInset = Math.Clamp(ActualWidth * 0.06, 3, 14);
+        var bottomInset = Math.Clamp(ActualHeight * 0.06, 2, 10);
+
+        _progress.Margin = new Thickness(horizontalInset, 0, horizontalInset, bottomInset);
+        _progress.CornerRadius = new CornerRadius(_progress.Height / 2);
     }
 
     /// <summary>Live icons (mic muted, pause...) replace only the default glyphs, never a user's custom image or emoji.</summary>
@@ -334,7 +348,13 @@ _content.Children.Add(group);
         _flash.Background = ThemeManager.Brush(ok ? p.Accent : p.Danger, (byte)(ok ? 0x55 : 0x77));
         if (ThemeManager.AnimationLevel == 0)
         {
-            if (!ok) { _flash.Opacity = 1; var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) }; t.Tick += (_, _) => { _flash.Opacity = 0; t.Stop(); }; t.Start(); }
+            if (!ok)
+            {
+                _flash.Opacity = 1;
+                var t = new System.Windows.Threading.DispatcherTimer { Interval = TimeSpan.FromMilliseconds(400) };
+                t.Tick += (_, _) => { _flash.Opacity = 0; t.Stop(); };
+                t.Start();
+            }
             return;
         }
         var fade = new DoubleAnimation(1, 0, D(ok ? 360 : 650)) { EasingFunction = new QuadraticEase { EasingMode = EasingMode.EaseOut } };
