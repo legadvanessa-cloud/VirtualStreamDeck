@@ -338,7 +338,23 @@ public sealed class ButtonState
     public string? Accent { get; set; }
     public ActionSpec Action { get; set; } = new();
 }
+public static class ButtonFeedbackModes
+{
+    public const string Inherit = "inherit";
+    public const string None = "none";
+    public const string Press = "press";
+    public const string Flash = "flash";
+    public const string Shake = "shake";
 
+    public static readonly (string Id, string Label)[] All =
+    {
+        (Inherit, "Utiliser le réglage global"),
+        (None, "Aucun retour visuel"),
+        (Press, "Enfoncement uniquement"),
+        (Flash, "Flash de couleur"),
+        (Shake, "Flash et vibration"),
+    };
+}
 public sealed class DeckButton
 {
     public string Id { get; set; } = NewId();
